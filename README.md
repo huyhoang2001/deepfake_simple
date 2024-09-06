@@ -7,3 +7,6 @@
 <p>step 1 dowload dataset link: https://drive.google.com/file/d/1kwA18UQiBCh4hWfHt84kubkoKtTwZCOs/view?usp=sharing
 <p>step 2 run main.py for train. When training is successful, the .h5 file will be exported.
 <p>step 3 run server.py and index.html. index.html The current file is taking a long time to open.
+
+#Demo
+<>![Uploading bandicam 2024-09-06 21-22-05-437 (online-video-cutter.com).gif…]()
