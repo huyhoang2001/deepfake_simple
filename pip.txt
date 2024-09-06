@@ -1,0 +1,9 @@
+numpy
+tensorflow
+matplotlib
+flask
+keras
+Flask-Cors
+h5py
+scipy
+opencv-python
