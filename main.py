@@ -10,10 +10,10 @@ import matplotlib.pyplot as plt
 import math
 
 # Thiết lập các tham số
-base_dir = os.path.abspath('dataset_1')
-image_size = (224, 224)
-batch_size = 32
-epochs = 50 # Tăng số lượng epochs
+base_dir = os.path.abspath('dataset_1') # đường dẫn tới folder chứ dữ liệu
+image_size = (224, 224) # kích thước size hình ảnh
+batch_size = 32 #chỉ số so sánh 1 hình ảnh với 32 hình.
+epochs = 50 # Tăng số lượng epochs. chỉ số học sâu, tăng độ chính xác.
 
 # Tạo ImageDataGenerator với nhiều kỹ thuật Data Augmentation hơn
 train_datagen = ImageDataGenerator(
