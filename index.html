@@ -86,7 +86,7 @@
             <p>Drop files here or click to select</p>
             <input type="file" id="fileInput" accept="image/*">
         </div>
-        <button id="uploadBtn">Upload</button>
+        <button id="uploadBtn">check</button>
         <img id="preview" style="display: none;">
         <div id="result"></div>
         <div class="progress-bar">
@@ -135,12 +135,22 @@
             }
         }
 
-        uploadBtn.addEventListener('click', () => {
+        uploadBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
             if (fileInput.files.length > 0) {
                 const formData = new FormData();
-                formData.append('file', fileInput.files[0]);
+                const file = fileInput.files[0];
+                
+                // Tạo một tên file mới chỉ chứa ký tự an toàn
+                const safeFileName = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+                
+                // Sử dụng Blob để tạo một file mới với tên an toàn
+                const safeFile = new File([file], safeFileName, { type: file.type });
+                
+                formData.append('file', safeFile);
 
-                fetch('http://localhost:5000/predict', {  // Make sure the URL matches the backend server's URL
+                fetch('http://localhost:8080/predict', {
                     method: 'POST',
                     body: formData
                 })
