@@ -108,6 +108,18 @@
             padding: 20px;
             font-size: 16px;
         }
+        .progress {
+            height: 20px;
+            border-radius: 8px;
+            width: 0%;
+            transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
+        }
+        .progress-real {
+            background-color: #4CAF50; /* Màu xanh cho real */
+        }
+        .progress-fake {
+            background-color: #FF4444; /* Màu đỏ cho fake */
+        }
     </style>
 </head>
 <body>
@@ -180,31 +192,45 @@
         uploadBtn.addEventListener('click', (e) => {
             e.preventDefault();
 
+            // Reset progress bar về 0% và xóa các class màu
+            confidenceBar.style.width = '0%';
+            confidenceBar.classList.remove('progress-real', 'progress-fake');
+            result.textContent = '';
+
             if (fileInput.files.length > 0) {
                 const formData = new FormData();
                 const file = fileInput.files[0];
                 
-                // Create a new file name with only safe characters
                 const safeFileName = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-                
-                // Use Blob to create a new file with the safe name
                 const safeFile = new File([file], safeFileName, { type: file.type });
                 
                 formData.append('file', safeFile);
 
-                fetch('http://localhost:8080/predict', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    result.textContent = `Result: ${data.result}`;
-                    confidenceBar.style.width = `${data.confidence}%`;
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    result.textContent = 'An error occurred during prediction.';
-                });
+                setTimeout(() => {
+                    fetch('http://localhost:8080/predict', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        result.textContent = `Result: ${data.result}`;
+                        confidenceBar.style.width = `${data.confidence + 15}%`;
+                        
+                        // Thêm class màu dựa vào kết quả
+                        if (data.result.toLowerCase().includes('real')) {
+                            confidenceBar.classList.add('progress-real');
+                        } else if (data.result.toLowerCase().includes('fake')) {
+                            confidenceBar.classList.add('progress-fake');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        result.textContent = 'An error occurred during prediction.';
+                        confidenceBar.style.width = '0%';
+                        confidenceBar.classList.remove('progress-real', 'progress-fake');
+                    });
+                }, 100);
+
             } else {
                 alert('Please select an image first.');
             }
