@@ -6,6 +6,7 @@
     <title>DeepFake Detect</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
+        /* CSS giữ nguyên như cũ */
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f0f2f5;
@@ -81,7 +82,6 @@
             max-width: 100%;
             max-height: 200px;
             object-fit: contain;
-            
         }
         #result {
             margin-top: 30px;
@@ -115,10 +115,10 @@
             transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
         }
         .progress-real {
-            background-color: #4CAF50; /* Màu xanh cho real */
+            background-color: #4CAF50;
         }
         .progress-fake {
-            background-color: #FF4444; /* Màu đỏ cho fake */
+            background-color: #FF4444;
         }
     </style>
 </head>
@@ -155,6 +155,8 @@
         const preview = document.getElementById('preview');
         const result = document.getElementById('result');
         const confidenceBar = document.getElementById('confidenceBar');
+        
+        let currentFile = null;
 
         dropArea.addEventListener('click', () => fileInput.click());
 
@@ -170,11 +172,22 @@
         dropArea.addEventListener('drop', (e) => {
             e.preventDefault();
             dropArea.style.borderColor = '#ccc';
-            handleFiles(e.dataTransfer.files);
+            const droppedFiles = e.dataTransfer.files;
+            if (droppedFiles.length > 0) {
+                // Cập nhật currentFile với file mới
+                currentFile = droppedFiles[0];
+                // Tạo một DataTransfer object mới
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(currentFile);
+                // Cập nhật fileInput với file mới
+                fileInput.files = dataTransfer.files;
+                handleFiles(droppedFiles);
+            }
         });
 
-        fileInput.addEventListener('change', () => {
-            handleFiles(fileInput.files);
+        fileInput.addEventListener('change', (e) => {
+            currentFile = e.target.files[0];
+            handleFiles(e.target.files);
         });
 
         function handleFiles(files) {
@@ -192,17 +205,14 @@
         uploadBtn.addEventListener('click', (e) => {
             e.preventDefault();
 
-            // Reset progress bar về 0% và xóa các class màu
             confidenceBar.style.width = '0%';
             confidenceBar.classList.remove('progress-real', 'progress-fake');
             result.textContent = '';
 
-            if (fileInput.files.length > 0) {
+            if (currentFile) {
                 const formData = new FormData();
-                const file = fileInput.files[0];
-                
-                const safeFileName = Date.now() + '-' + file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-                const safeFile = new File([file], safeFileName, { type: file.type });
+                const safeFileName = Date.now() + '-' + currentFile.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+                const safeFile = new File([currentFile], safeFileName, { type: currentFile.type });
                 
                 formData.append('file', safeFile);
 
@@ -216,7 +226,6 @@
                         result.textContent = `Result: ${data.result}`;
                         confidenceBar.style.width = `${data.confidence + 15}%`;
                         
-                        // Thêm class màu dựa vào kết quả
                         if (data.result.toLowerCase().includes('real')) {
                             confidenceBar.classList.add('progress-real');
                         } else if (data.result.toLowerCase().includes('fake')) {
@@ -230,7 +239,6 @@
                         confidenceBar.classList.remove('progress-real', 'progress-fake');
                     });
                 }, 100);
-
             } else {
                 alert('Please select an image first.');
             }
